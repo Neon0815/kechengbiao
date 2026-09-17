@@ -383,6 +383,22 @@ function updateWeekRange() {
   const note = weekday === 1 ? "" : ` · 当前为星期${["日", "一", "二", "三", "四", "五", "六"][date.getDay()]}，导出时仍按此日期作为第 1 周周一`;
   range.textContent = `第 1 周：${formatDateShort(date)} — ${formatDateShort(end)}${note}`;
 }
+function getCurrentWeekFromAnchor() {
+  const anchor = dateFromInput();
+  if (!anchor) return null;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayDiff = Math.floor((today.getTime() - anchor.getTime()) / 86400000);
+  const week = Math.floor(dayDiff / 7) + 1;
+  return week >= 1 && week <= WEEK_MAX ? String(week) : null;
+}
+function syncToCurrentWeek(showFeedback = false) {
+  const currentWeek = getCurrentWeekFromAnchor();
+  selectedWeek = currentWeek ?? "all";
+  renderWeekOptions();
+  render();
+  if (showFeedback) showToast(currentWeek ? `已自动定位到第 ${currentWeek} 周` : "当前日期不在第 1–18 周内，已显示全部周次");
+}
 function icsDate(date, time) { const [hour, minute] = time.split(":").map(Number); return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(hour)}${pad(minute)}00`; }
 function addDays(date, days) { const result = new Date(date); result.setDate(result.getDate() + days); return result; }
 function escapeICS(value) { return String(value ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n"); }
@@ -424,7 +440,7 @@ $("#applyImportBtn").addEventListener("click", applyImport);
 $("#exportBtn").addEventListener("click", exportICS);
 $("#templateBtn").addEventListener("click", downloadTemplate);
 $("#closeDetailBtn").addEventListener("click", () => $("#detailDialog").close());
-$("#semesterStart").addEventListener("change", () => { updateWeekRange(); showToast("第 1 周日期已更新，导出日历时会按天计算"); });
+$("#semesterStart").addEventListener("change", () => { updateWeekRange(); syncToCurrentWeek(true); });
 weekFilter.addEventListener("change", (event) => { selectedWeek = event.target.value; render(); });
 $("#clearBtn").addEventListener("click", () => {
   courses = [];
@@ -449,4 +465,4 @@ fileInput.addEventListener("change", () => { if (fileInput.files?.[0]) importSta
 
 renderWeekOptions();
 updateWeekRange();
-render();
+syncToCurrentWeek();
