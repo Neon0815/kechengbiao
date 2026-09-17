@@ -129,6 +129,7 @@ h1 span { color: var(--orange); }
 .date-field { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 7px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); color: #9aacbf; font-size: 12px; }
 .date-field input { width: 133px; border: 0; outline: 0; color: var(--white); background: transparent; font-size: 13px; }
 .date-field input::-webkit-calendar-picker-indicator { filter: invert(1) brightness(1.6); cursor: pointer; }
+.week-range { color: #c5d2e0; font-size: 11px; line-height: 1.45; }
 
 .action-bar {
   display: flex;

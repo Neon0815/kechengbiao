@@ -373,6 +373,16 @@ function dateFromInput() {
 }
 
 function pad(number) { return String(number).padStart(2, "0"); }
+function formatDateShort(date) { return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`; }
+function updateWeekRange() {
+  const date = dateFromInput();
+  const range = $("#weekRange");
+  if (!date) { range.textContent = "请选择第 1 周周一"; return; }
+  const end = addDays(date, 6);
+  const weekday = date.getDay() || 7;
+  const note = weekday === 1 ? "" : ` · 当前为星期${["日", "一", "二", "三", "四", "五", "六"][date.getDay()]}，导出时仍按此日期作为第 1 周周一`;
+  range.textContent = `第 1 周：${formatDateShort(date)} — ${formatDateShort(end)}${note}`;
+}
 function icsDate(date, time) { const [hour, minute] = time.split(":").map(Number); return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(hour)}${pad(minute)}00`; }
 function addDays(date, days) { const result = new Date(date); result.setDate(result.getDate() + days); return result; }
 function escapeICS(value) { return String(value ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n"); }
@@ -414,7 +424,7 @@ $("#applyImportBtn").addEventListener("click", applyImport);
 $("#exportBtn").addEventListener("click", exportICS);
 $("#templateBtn").addEventListener("click", downloadTemplate);
 $("#closeDetailBtn").addEventListener("click", () => $("#detailDialog").close());
-$("#semesterStart").addEventListener("change", () => showToast("学期开始日已更新，导出日历时会按此日期计算"));
+$("#semesterStart").addEventListener("change", () => { updateWeekRange(); showToast("第 1 周日期已更新，导出日历时会按天计算"); });
 weekFilter.addEventListener("change", (event) => { selectedWeek = event.target.value; render(); });
 $("#clearBtn").addEventListener("click", () => {
   courses = [];
@@ -438,4 +448,5 @@ dropZone.addEventListener("drop", (event) => {
 fileInput.addEventListener("change", () => { if (fileInput.files?.[0]) importStatus.textContent = `已选择：${fileInput.files[0].name}`; });
 
 renderWeekOptions();
+updateWeekRange();
 render();
