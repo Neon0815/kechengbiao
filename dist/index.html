@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0e1b2e" />
+    <meta
+      name="description"
+      content="把学校导出的课程表变成清晰的周视图，并导出为可导入 iPhone 日历的 .ics 文件。"
+    />
+    <title>课表焕新 · 课程工作台</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%230e1b2e'/%3E%3Cpath d='M17 18h30v8H17zm0 13h21v8H17zm0 13h30v8H17z' fill='%23ff865c'/%3E%3Ccircle cx='47' cy='35' r='6' fill='%23f7c65b'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="课表焕新首页">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>课表焕新</span>
+        </a>
+        <div class="topbar-meta">
+          <span>课程工作台</span>
+          <span class="offline-pill"><b></b> 本地运行</span>
+        </div>
+      </header>
+
+      <main id="top">
+        <section class="intro-row" aria-labelledby="page-title">
+          <div class="intro-copy">
+            <p class="eyebrow">COURSE BOARD / 01</p>
+            <h1 id="page-title">你的这一学期，<span>一眼就能安排好</span></h1>
+            <p class="intro-text">
+              把学校导出的课表变成清晰的周视图，必要时一键带走到 iPhone 日历。
+            </p>
+          </div>
+          <div class="semester-card">
+            <span class="card-label">当前学期</span>
+            <strong id="semesterTitle">2026 — 2027 · 第一学期</strong>
+            <label class="date-field" for="semesterStart">
+              <span>学期开始日</span>
+              <input id="semesterStart" type="date" value="2026-09-07" />
+            </label>
+          </div>
+        </section>
+
+        <section class="action-bar" aria-label="课表操作">
+          <button id="importBtn" class="button button-primary" type="button">
+            <span class="button-icon">＋</span> 导入课表
+          </button>
+          <button id="exportBtn" class="button button-secondary" type="button">
+            <span class="button-icon">⌁</span> 导出 iOS 日历
+          </button>
+          <button id="templateBtn" class="button button-quiet" type="button">下载 CSV 模板</button>
+          <div class="toolbar-spacer"></div>
+          <label class="filter-control" for="weekFilter">
+            <span>查看</span>
+            <select id="weekFilter" aria-label="选择查看周次"></select>
+          </label>
+          <button id="clearBtn" class="button button-quiet clear-button" type="button">清空课表</button>
+        </section>
+
+        <section class="workspace-card" aria-labelledby="board-title">
+          <div class="workspace-head">
+            <div>
+              <p class="eyebrow">WEEKLY VIEW</p>
+              <h2 id="board-title">本学期课程安排</h2>
+            </div>
+            <div class="stats" aria-live="polite">
+              <div class="stat-item"><strong id="courseCount">0</strong><span>门课程</span></div>
+              <div class="stat-divider"></div>
+              <div class="stat-item"><strong id="activeWeekLabel">全部</strong><span>查看范围</span></div>
+            </div>
+          </div>
+          <div class="board-wrap">
+            <div id="scheduleGrid" class="schedule-grid" aria-label="每周课程表"></div>
+          </div>
+          <div class="board-footer">
+            <span><i class="legend-dot legend-dot-orange"></i>线下课程</span>
+            <span><i class="legend-dot legend-dot-blue"></i>线上课程</span>
+            <span class="board-tip">点击“导出 iOS 日历”，下载后用手机打开 .ics 文件即可导入</span>
+          </div>
+        </section>
+
+        <section class="lower-grid">
+          <aside class="guide-card" aria-labelledby="guide-title">
+            <div class="guide-number">02</div>
+            <div>
+              <p class="eyebrow">QUICK START</p>
+              <h2 id="guide-title">换一份课表也很快</h2>
+              <p>推荐使用 CSV 或 JSON。也可以把 Word 课表复制到文本框，系统会尽量识别课程、周次、教师和教室。</p>
+              <button id="guideImportBtn" class="text-link" type="button">打开导入面板 <span>↗</span></button>
+            </div>
+          </aside>
+
+          <section class="course-list-card" aria-labelledby="list-title">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">COURSE NOTES</p>
+                <h2 id="list-title">课程明细</h2>
+              </div>
+              <span id="listHint" class="section-hint">按课程查看周次</span>
+            </div>
+            <div id="courseList" class="course-list"></div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>课表焕新</span>
+        <span>数据只在当前浏览器中处理，不会上传</span>
+      </footer>
+    </div>
+
+    <dialog id="importDialog" class="import-dialog" aria-labelledby="import-title">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">IMPORT DATA</p>
+          <h2 id="import-title">导入一份新课表</h2>
+        </div>
+        <button id="closeDialogBtn" class="close-button" type="button" aria-label="关闭导入面板">×</button>
+      </div>
+
+      <div class="drop-zone" id="dropZone">
+        <input id="fileInput" type="file" accept=".csv,.json,.txt,.doc,.html,text/csv,application/json,text/plain" />
+        <div class="upload-icon" aria-hidden="true">↑</div>
+        <strong>拖入文件，或点击选择</strong>
+        <span>支持 CSV / JSON / TXT / 旧版 DOC</span>
+      </div>
+
+      <div class="paste-divider"><span>或粘贴课程表文本</span></div>
+      <textarea id="pasteInput" rows="7" placeholder="示例：\n课程名称,星期,开始节次,结束节次,教师,教室,周次\n高等数学,星期一,1,2,张老师,J01A201,1-16"></textarea>
+      <div id="importStatus" class="import-status" aria-live="polite"></div>
+      <div class="dialog-actions">
+        <button id="cancelImportBtn" class="button button-quiet" type="button">取消</button>
+        <button id="applyImportBtn" class="button button-primary" type="button">识别并应用</button>
+      </div>
+    </dialog>
+
+    <dialog id="detailDialog" class="detail-dialog" aria-labelledby="detail-title">
+      <div id="detailContent"></div>
+      <button id="closeDetailBtn" class="button button-quiet" type="button">关闭</button>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
